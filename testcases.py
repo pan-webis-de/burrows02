@@ -28,7 +28,7 @@ def pan12a(training, test):
     """
     # training data for PAN12 A
     database = Database(considered_words=100,real_words=True)
-    
+
     # create the authors
     author_a = Author("Author A")
     author_b = Author("Author B")
@@ -80,28 +80,27 @@ def pan12a(training, test):
 
 
 def pan12(problem, problem_training, n_authors, n_training, n_testcases, 
-          considered_words, real_words, training_path, test_path):
+          considered_words_list, real_words, training_path, test_path):
     """
     Run the algorithm with PAN12 data. 
     This works for classification problems.
     
     Keyword arguments:
     problem -- The problem of PAN12 ('A','B' etc.)
-    problem_training -- Using the trainingdata of this problem.
+    problem_training -- Using the training data of this problem.
     n_authors -- The number of authors of this case.
     n_training -- The number of training files per author.
-    n_testcases -- The number of testcases.
+    n_testcases -- The number of test cases.
     considered_words -- How many of the most common words should be considered?
     real_words -- Only alphabetic words?
     training_path -- The path to the PAN12 training folder
     test_path -- The path to the PAN12 test folder
     """
     print("Problem: PAN12 " + problem)
-    print("considered_words: " + str(considered_words))
     print("real_words: " + str(real_words))
     
     
-    database = Database(considered_words, real_words)
+    database = Database(0, real_words)
     
     # Load the training data
     for author_letter in string.ascii_uppercase[0:n_authors:]:
@@ -121,21 +120,28 @@ def pan12(problem, problem_training, n_authors, n_training, n_testcases,
         
     
     # Next, do the testcases
-    for testcase_number in range(1,n_testcases+1):
-        testcase = Text(raw_from_file(
-            test_path + "12" + problem + "test"
-                      +  str(testcase_number).zfill(2) + ".txt"),
-            "Testcase " + problem + " " + str(testcase_number))
-        testcase.calc_zscores(database)
+    for considered_words in considered_words_list:
+        database.considered_words = considered_words
+        print("\nconsidered_words: " + str(considered_words))
         
-        # now calculate the deltas
-        deltas = {}
-        for author in database.authors:
-            deltas[author] = testcase.calc_delta(database,author)
+        # We have to process the database again since we restrict to n words
+        database.process()
+        
+        for testcase_number in range(1,n_testcases+1):
+            testcase = Text(raw_from_file(
+                test_path + "12" + problem + "test"
+                          +  str(testcase_number).zfill(2) + ".txt"),
+                "Test case " + problem + " " + str(testcase_number))
+            testcase.calc_zscores(database)
+        
+            # now calculate the deltas
+            deltas = {}
+            for author in database.authors:
+                deltas[author] = testcase.calc_delta(database,author)
             
-        print("Deltas for Testcase " + str(testcase_number) + ":")
-        for author in sorted(deltas, key=deltas.get):
-            print(author.name + ": " + str(deltas[author]))
+            print("Deltas for Test case " + str(testcase_number) + ":")
+            for author in sorted(deltas, key=deltas.get):
+                print(author.name + ": " + str(deltas[author]))
             
     print("\n\n")
   
@@ -144,42 +150,37 @@ def main():
     #pan12a("../pan12-training/","../pan12-test/")
     training_path = "../pan12-training/"
     test_path = "../pan12-test/"
-    
-    for words in [40,60,80,100,120,150,0]:
-        pan12(problem="A", problem_training="A", 
-              n_authors=3, n_training=2, n_testcases=6, 
-              considered_words=words, real_words=True,
+    testcases = [40,60,80,100,120,150,0]
+        
+    pan12(problem="A", problem_training="A",
+              n_authors=3, n_training=2, n_testcases=6,
+              considered_words_list=testcases, real_words=True,
               training_path=training_path,test_path=test_path)
-              
-    for words in [40,60,80,100,120,150,0]:
-        pan12(problem="B", problem_training="A", 
-              n_authors=3, n_training=2, n_testcases=10, 
-              considered_words=words, real_words=True,
-              training_path=training_path,test_path=test_path)
-    
-    for words in [40,60,80,100,120,150,0]:          
-        pan12(problem="C", problem_training="C", 
-              n_authors=8, n_training=2, n_testcases=8, 
-              considered_words=words, real_words=True,
-              training_path=training_path,test_path=test_path)          
-    
-    for words in [40,60,80,100,120,150,0]:
-        pan12(problem="D", problem_training="C", 
-              n_authors=8, n_training=2, n_testcases=17, 
-              considered_words=words, real_words=True,
-              training_path=training_path,test_path=test_path)
-    
-    for words in [40,60,80,100,120,150,0]:
-        pan12(problem="I", problem_training="I", 
-              n_authors=14, n_training=2, n_testcases=14, 
-              considered_words=words, real_words=True,
-              training_path=training_path,test_path=test_path)          
 
-    for words in [40,60,80,100,120,150,0]:
-        pan12(problem="J", problem_training="I", 
-              n_authors=14, n_training=2, n_testcases=16, 
-              considered_words=words, real_words=True,
-              training_path=training_path,test_path=test_path)      
+    pan12(problem="B", problem_training="A",
+              n_authors=3, n_training=2, n_testcases=10,
+              considered_words_list=testcases, real_words=True,
+              training_path=training_path,test_path=test_path)
+
+    pan12(problem="C", problem_training="C",
+              n_authors=8, n_training=2, n_testcases=8,
+              considered_words_list=testcases, real_words=True,
+              training_path=training_path,test_path=test_path)
+
+    pan12(problem="D", problem_training="C",
+              n_authors=8, n_training=2, n_testcases=17,
+              considered_words_list=testcases, real_words=True,
+              training_path=training_path,test_path=test_path)
+
+    pan12(problem="I", problem_training="I",
+              n_authors=14, n_training=2, n_testcases=14,
+              considered_words_list=testcases, real_words=True,
+              training_path=training_path,test_path=test_path)
+
+    pan12(problem="J", problem_training="I",
+              n_authors=14, n_training=2, n_testcases=16,
+              considered_words_list=testcases, real_words=True,
+              training_path=training_path,test_path=test_path)
 
 if __name__ == "__main__":
     # execute only if run as a script
