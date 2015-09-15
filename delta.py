@@ -1,5 +1,6 @@
 import nltk
 import logging
+import string
 from statistics import mean, stdev, StatisticsError
 from nltk import word_tokenize
 from collections import Counter
@@ -64,7 +65,7 @@ class Database:
         
     def calc_counter(self):
         """
-        Count the occurences of every word in the database 
+        Count the occurrences of every word in the database
         and how many texts there are.
         """
         logging.info("Database: Counting.")
@@ -74,11 +75,13 @@ class Database:
             self.txt_number += author.txt_number
         
         # Restrict the words to those who contain only *real* words
-        if self.real_words is True:
-            self.counter = Counter({k: v for k,v in dict(self.counter).items() 
-                                                 if k[0].isalpha() })
-            # The key k is a tuple of the form (word, tag)
-            # We want to check if the first argument is alphabetic
+        if self.real_words is True:                
+            # The key k is a tuple of the form (word, tag).
+            # We check if the first argument is a real word in the
+            # sense that it contains at least one alphabetic character (a-zA-Z)
+            # such that words like "middle-age" or "I'll" are accepted.
+            self.counter = Counter({k: v for k,v in dict(self.counter).items() \
+                           if sum(c in string.ascii_letters for c in k[0]) > 0 })
         
         # Restrict the number of words used for the calculations
         if self.considered_words > 0:
@@ -162,7 +165,7 @@ class Author:
             self.txt_number += 1
         
     def calc_counter(self):
-        """Count the occurences of every word in texts of this author."""
+        """Count the occurrences of every word in texts of this author."""
         
         if not self.__counter_calculated:
             logging.info("Author '%s': Calculating Counter.",self.name)
@@ -207,9 +210,10 @@ class Author:
         calc_mean_stdev has to be executed before
         """
         for word in self.counter:
+            # We have to check if the word is in the database's counter because
+            # the database's might be restricted, e.g. most common words or 
+            # only real words. (see the comments of Database.calc_counter())
             if word in database.counter: 
-                # This needs to be checked because the database's counter
-                # could be restricted to the most common n words
                 self.zscores[word] = (self.mean[word] - database.mean[word]) \
                                        / database.stdev[word]
                                        
