@@ -4,3 +4,7 @@ results.txt
 *.pyc
 
 *.txt
+
+*.csv
+
+*.ods
