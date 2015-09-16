@@ -97,8 +97,7 @@ def pan12(problem, problem_training, n_authors, n_training, n_testcases,
     test_path -- The path to the PAN12 test folder
     """
     print("Problem: PAN12 " + problem)
-    print("real_words: " + str(real_words))
-    
+    print("real_words: " + str(real_words))    
     
     database = Database(0, real_words)
     
@@ -118,22 +117,23 @@ def pan12(problem, problem_training, n_authors, n_training, n_testcases,
     for author in database.authors:
         author.calc_cmsz(database)
         
-    
     # Next, do the testcases
-    for considered_words in considered_words_list:
-        database.considered_words = considered_words
-        print("\nconsidered_words: " + str(considered_words))
+    for testcase_number in range(1,n_testcases+1):   
+        testcase = Text(raw_from_file(
+            test_path + "12" + problem + "test"
+                      +  str(testcase_number).zfill(2) + ".txt"),
+            "Test case " + problem + " " + str(testcase_number))
+            
+        print("\nDeltas for Test case " + str(testcase_number) + ":")
+        for considered_words in considered_words_list:
+            database.considered_words = considered_words
+            print("\nconsidered_words: " + str(considered_words))
+
+            # We have to process the database again since we restrict to n words
+            database.process()
         
-        # We have to process the database again since we restrict to n words
-        database.process()
-        
-        for testcase_number in range(1,n_testcases+1):
-            testcase = Text(raw_from_file(
-                test_path + "12" + problem + "test"
-                          +  str(testcase_number).zfill(2) + ".txt"),
-                "Test case " + problem + " " + str(testcase_number))
             testcase.calc_zscores(database)
-        
+
             # now calculate the deltas
             deltas = {}
             for author in database.authors:
@@ -142,7 +142,7 @@ def pan12(problem, problem_training, n_authors, n_training, n_testcases,
             print("Deltas for Test case " + str(testcase_number) + ":")
             for author in sorted(deltas, key=deltas.get):
                 print(author.name + ": " + str(deltas[author]))
-            
+        
     print("\n\n")
   
   
