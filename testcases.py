@@ -80,7 +80,8 @@ def pan12a(training, test):
 
 
 def pan12(problem, problem_training, n_authors, n_training, n_testcases, 
-          considered_words_list, real_words, training_path, test_path):
+          considered_words_list, real_words, training_path, test_path, 
+          sorted=False):
     """
     Run the algorithm with PAN12 data. 
     This works for classification problems.
@@ -95,6 +96,7 @@ def pan12(problem, problem_training, n_authors, n_training, n_testcases,
     real_words -- Only alphabetic words?
     training_path -- The path to the PAN12 training folder
     test_path -- The path to the PAN12 test folder
+    sorted -- If True then sorted in ascending order of delta (default: False)
     """
     print("Problem: PAN12 " + problem)
     print("real_words: " + str(real_words))    
@@ -138,9 +140,8 @@ def pan12(problem, problem_training, n_authors, n_training, n_testcases,
             deltas = {}
             for author in database.authors:
                 deltas[author] = testcase.calc_delta(database,author)
-            
-            print("Deltas for Test case " + str(testcase_number) + ":")
-            for author in sorted(deltas, key=deltas.get):
+    
+            for author in (sorted(deltas, key=deltas.get) if sorted else database.authors):
                 print(author.name + ": " + str(deltas[author]))
         
     print("\n\n")
