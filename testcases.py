@@ -81,7 +81,7 @@ def pan12a(training, test):
 
 def pan12(problem, problem_training, n_authors, n_training, n_testcases, 
           considered_words_list, real_words, training_path, test_path, 
-          sorted=False):
+          sort=False, csv=False):
     """
     Run the algorithm with PAN12 data. 
     This works for classification problems.
@@ -96,8 +96,15 @@ def pan12(problem, problem_training, n_authors, n_training, n_testcases,
     real_words -- Only alphabetic words?
     training_path -- The path to the PAN12 training folder
     test_path -- The path to the PAN12 test folder
-    sorted -- If True then sorted in ascending order of delta (default: False)
+    sort -- If True then sorted in ascending order of delta (default: False)
+    csv -- If True then output is in csv format. Automatically disables sort
+           (default: False)
     """
+    # If csv is chosen, we have to disable sorting by delta as 
+    # this would produce wrong csv data
+    if csv:
+        sort = False
+    
     print("Problem: PAN12 " + problem)
     print("real_words: " + str(real_words))    
     
@@ -127,9 +134,12 @@ def pan12(problem, problem_training, n_authors, n_training, n_testcases,
             "Test case " + problem + " " + str(testcase_number))
             
         print("\nDeltas for Test case " + str(testcase_number) + ":")
+        
+        deltas = {}
         for considered_words in considered_words_list:
             database.considered_words = considered_words
-            print("\nconsidered_words: " + str(considered_words))
+            if not csv:
+                print("\nconsidered_words: " + str(considered_words))
 
             # We have to process the database again since we restrict to n words
             database.process()
@@ -137,13 +147,29 @@ def pan12(problem, problem_training, n_authors, n_training, n_testcases,
             testcase.calc_zscores(database)
 
             # now calculate the deltas
-            deltas = {}
             for author in database.authors:
-                deltas[author] = testcase.calc_delta(database,author)
-    
-            for author in (sorted(deltas, key=deltas.get) if sorted else database.authors):
-                print(author.name + ": " + str(deltas[author]))
+                deltas[(author,considered_words)] = testcase.calc_delta(database,author)
+            
+            # if we don't want csv output
+            if not csv:
+                for author in (sorted(deltas, key=deltas.get) if sort else database.authors):
+                    if sort:
+                        author = author[0]
+                    print(author.name + ": " + str(deltas[(author,considered_words)]))
+                deltas = {}
+                
+        #csv output
+        if csv:
+            print("author", end=",")    
+            for considered_words in considered_words_list:
+                print(considered_words, end=",")
+            print("\n", end="")
         
+            for author in database.authors:
+                print(author.name, end=",")
+                for considered_words in considered_words_list:
+                    print(str(deltas[(author,considered_words)]), end=",")
+                print("\n", end="")       
     print("\n\n")
   
   
