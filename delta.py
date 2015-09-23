@@ -232,7 +232,7 @@ class Author:
 class Text:
     """Represents a single text."""
     
-    def __init__(self,raw,name,process=True):
+    def __init__(self,raw,name,process=True,pos_tag=True):
         """
         Initialize a text object with raw text.
            
@@ -240,6 +240,7 @@ class Text:
         raw -- Raw text as a string.
         name -- Name of the text.
         process -- If true then directly process the text. (default: True)
+        pos_tag -- Should the raw text be POS tagged? (default: True)
         """
         self.name = name
         self.raw = raw
@@ -251,22 +252,34 @@ class Text:
         self.sum = 0 #number of words in self.raw
         
         if process:
-            self.process()
+            self.process(pos_tag=pos_tag)
         
                 
-    def process(self):
+    def process(self, pos_tag=True):
         """
         Process the text at hand, i.e. it is tokenized, tagged and 
         counted. Moreover, we calculate the frequency/score of every word
         (relative frequency).
-        """
-        # A list of all tokens can be seen 
-        # with nltk.help.upenn_tagset()
-        logging.info("Tokenizing '%s'",self.name)
-        self.tokens = nltk.word_tokenize(self.raw) 
         
-        logging.info("Tagging '%s'",self.name)
-        self.tags = nltk.pos_tag(self.tokens)
+        Keyword arguments:
+        pos_tag -- Should the raw text be POS tagged? (default: True) 
+        """
+        if pos_tag:
+            # A list of all tokens can be seen 
+            # with nltk.help.upenn_tagset()
+            logging.info("Tokenizing '%s'",self.name)
+            self.tokens = nltk.word_tokenize(self.raw) 
+            logging.info("Tagging '%s'",self.name)
+            self.tags = nltk.pos_tag(self.tokens)
+        else:
+            logging.info("Preparing '%s'", self.name)
+            # the following takes all alphabetic words normalized to lowercase
+            # from the raw data
+            self.tags = [x for x in 
+                            [''.join(c for c in word if c.isalpha()).lower() 
+                             for word in self.raw.split()] 
+                         if x != '']
+            
         
         logging.info("Counting '%s'", self.name)
         self.counter = Counter(self.tags)
