@@ -3,30 +3,19 @@ import codecs
 import string
 import jsonhandler
 import sys
+import argparse
 
 from delta import Database, Author, Text
 
-def raw_from_file(file,enc='utf_8'):
-    """
-    Return the raw text from a file.
-    
-    Keyword arguments:
-    file -- A path to the file.
-    enc  -- Encoding of the file (default 'utf_8') 
-    """
-        
-    f = codecs.open(file,encoding=enc) 
-    raw = f.read()
-    return raw
-
-def tira(path):
+def tira(corpusdir, outputdir):
     """
     Keyword arguments:
-    path -- Path to a tira corpus
+    corpusdir -- Path to a tira corpus
+    outputdir -- Output directory
     """
     pos_tag = False
     
-    jsonhandler.loadJson(path)
+    jsonhandler.loadJson(corpusdir)
     jsonhandler.loadTraining()
     
     # creating training data
@@ -37,7 +26,7 @@ def tira(path):
         for training in jsonhandler.trainings[candidate]:
             logging.info("Author '%s': Loading training '%s'", candidate,training)
             text = Text(jsonhandler.getTrainingText(candidate,training), 
-                        candidate + " " +training,
+                        candidate + " " + training,
                         pos_tag=pos_tag)
             author.add_text(text)
         database.add_author(author)
@@ -45,9 +34,7 @@ def tira(path):
     
     for author in database.authors:
         author.calc_cmsz(database)
-        
-    # maybe load the known cases new?    
-    
+            
     # do some training, i.e. check which parameter is best
     logging.info("Start training...")
     results = {}
@@ -88,11 +75,24 @@ def tira(path):
         
     texts = [text for (text,candidate) in results]
     cands = [candidate for (text,candidate) in results]
-    jsonhandler.storeJson(texts, cands)
+    jsonhandler.storeJson(texts, cands, path=outputdir)
 
 def main():
-    tira(sys.argv[1]) #path to tira corpora with meta-file.json
-     
+    parser = argparse.ArgumentParser(description='Tira submission for Delta.')
+    parser.add_argument('-i', 
+                        action='store',
+                        help='Path to input directory')
+    parser.add_argument('-o', 
+                        action='store',
+                        help='Path to output directory')
+    
+    args = vars(parser.parse_args())
+    
+    corpusdir = args['i']
+    outputdir = args['o']
+    
+    tira(corpusdir, outputdir)
+    
 
 if __name__ == "__main__":
     # execute only if run as a script
