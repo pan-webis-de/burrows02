@@ -214,8 +214,11 @@ class Author:
             # the database's might be restricted, e.g. most common words or 
             # only real words. (see the comments of Database.calc_counter())
             if word in database.counter: 
-                self.zscores[word] = (self.mean[word] - database.mean[word]) \
-                                       / database.stdev[word]
+                if database.stdev[word] != 0:
+                    self.zscores[word] = (self.mean[word] - database.mean[word]) \
+                                           / database.stdev[word]
+                else:
+                    self.zscores[word] = 0
                                        
     def calc_cmsz(self, database):
         """
@@ -329,4 +332,4 @@ class Text:
                 else:
                     absolute_differences[word] = abs(self.zscores[word])
                 absolute_differences_sum += absolute_differences[word]
-        return absolute_differences_sum / sum(self.counter.values())
+        return absolute_differences_sum # / sum(self.counter.values())
