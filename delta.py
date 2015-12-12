@@ -1,8 +1,8 @@
-import nltk
+#import nltk
 import logging
 import string
 from statistics import mean, stdev, StatisticsError
-from nltk import word_tokenize
+#from nltk import word_tokenize
 from collections import Counter
 
 class Database:

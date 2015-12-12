@@ -54,7 +54,7 @@ jsonhandler.storeJson(unknowns, authors, scores)
 import os, json
 
 META_FNAME = "meta-file.json"
-OUT_FNAME = "out.json"
+OUT_FNAME = "answers.json"
 GT_FNAME = "ground-truth.json"
 
 def loadJson(corpus):

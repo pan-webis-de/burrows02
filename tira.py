@@ -96,5 +96,5 @@ def main():
 
 if __name__ == "__main__":
     # execute only if run as a script
-    logging.basicConfig(level=logging.DEBUG,format='%(asctime)s %(levelname)s: %(message)s')
+    logging.basicConfig(level=logging.ERROR,format='%(asctime)s %(levelname)s: %(message)s')
     main()
