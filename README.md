@@ -2,7 +2,7 @@
 
 This is a reimplementation of the approach to authorship attribution originally described in
 
-> J.F. Burrows. ['Delta': A measure of stylistic difference and a guide to likely authorship](http://llc.oxfordjournals.org/content/17/3/267.full.pdf). Literary and Linguistic Computing, 17(3), 267-287, 2002 [[paper](http://llc.oxfordjournals.org/content/17/3/267.full.pdf)]
+> John F. Burrows. ['Delta': A measure of stylistic difference and a guide to likely authorship](http://llc.oxfordjournals.org/content/17/3/267.full.pdf). Literary and Linguistic Computing, 17(3), 267-287, 2002 [[paper](http://llc.oxfordjournals.org/content/17/3/267.full.pdf)]
 
 It was reimplemented as part of a science reproducibility study alongside [14 other authorship attribution approaches](https://github.com/search?q="Who+wrote+the+web"+user:pan-webis-de). The results of the reproducibility study can be found in
 
