@@ -12,7 +12,9 @@
 # OPTIONAL: loadTraining()
 # OPTIONAL: getTrainingText(jsonhandler.candidate[i], jsonhandler.trainings[jsonhandler.candidates[i]][j]), gets trainingtext j from candidate i as a string
 # getUnknownText(jsonhandler.unknowns[i]), gets unknown text i as a string
-# storeJson(candidates, texts, scores), with list of candidates as candidates (jsonhandler.candidates can be used), list of texts as texts and list of scores as scores, last argument can be ommitted
+# storeJson(candidates, texts, scores), with list of candidates as
+# candidates (jsonhandler.candidates can be used), list of texts as texts
+# and list of scores as scores, last argument can be ommitted
 
 '''
 EXAMPLE:
@@ -51,75 +53,86 @@ for file in unknowns:
 jsonhandler.storeJson(unknowns, authors, scores)
 '''
 
-import os, json
+import os
+import json
 
 META_FNAME = "meta-file.json"
 OUT_FNAME = "answers.json"
 GT_FNAME = "ground-truth.json"
 
-def loadJson(corpus):
-	global corpusdir, upath, candidates, unknowns, encoding, language
-	corpusdir += corpus
-	mfile = open(os.path.join(corpusdir, META_FNAME), "r")
-	metajson = json.load(mfile)
-	mfile.close()
 
-	upath += os.path.join(corpusdir, metajson["folder"])
-	encoding += metajson["encoding"]
-	language += metajson["language"]
-	candidates += [author["author-name"] for author in metajson["candidate-authors"]]
-	unknowns += [text["unknown-text"] for text in metajson["unknown-texts"]]
+def loadJson(corpus):
+    global corpusdir, upath, candidates, unknowns, encoding, language
+    corpusdir += corpus
+    mfile = open(os.path.join(corpusdir, META_FNAME), "r")
+    metajson = json.load(mfile)
+    mfile.close()
+
+    upath += os.path.join(corpusdir, metajson["folder"])
+    encoding += metajson["encoding"]
+    language += metajson["language"]
+    candidates += [author["author-name"]
+                   for author in metajson["candidate-authors"]]
+    unknowns += [text["unknown-text"] for text in metajson["unknown-texts"]]
+
 
 def getUnknownText(fname):
-	dfile = open(os.path.join(upath, fname))
-	s = dfile.read()
-	dfile.close()
-	return s
+    dfile = open(os.path.join(upath, fname))
+    s = dfile.read()
+    dfile.close()
+    return s
+
 
 def getUnknownBytes(fname):
-	dfile = open(os.path.join(upath, fname), "rb")
-	b = bytearray(dfile.read())
-	dfile.close()
-	return b
+    dfile = open(os.path.join(upath, fname), "rb")
+    b = bytearray(dfile.read())
+    dfile.close()
+    return b
+
 
 def loadTraining():
-	for cand in candidates:
-		trainings[cand] = []
-		for subdir, dirs, files in os.walk(os.path.join(corpusdir, cand)):
-			for doc in files:
-				trainings[cand].append(doc)
+    for cand in candidates:
+        trainings[cand] = []
+        for subdir, dirs, files in os.walk(os.path.join(corpusdir, cand)):
+            for doc in files:
+                trainings[cand].append(doc)
+
 
 def getTrainingText(cand, fname):
-	dfile = open(os.path.join(corpusdir, cand, fname))
-	s = dfile.read()
-	dfile.close()
-	return s
+    dfile = open(os.path.join(corpusdir, cand, fname))
+    s = dfile.read()
+    dfile.close()
+    return s
+
 
 def getTrainingBytes(cand, fname):
-	dfile = open(os.path.join(corpusdir, cand, fname), "rb")
-	b = bytearray(dfile.read())
-	dfile.close()
-	return b
+    dfile = open(os.path.join(corpusdir, cand, fname), "rb")
+    b = bytearray(dfile.read())
+    dfile.close()
+    return b
 
-def storeJson(texts, cands, path, scores = None):
-	answers = []
-	if scores == None:
-		scores = [1 for text in texts]
-	for i in range(len(texts)):
-		answers.append({"unknown_text": texts[i], "author": cands[i], "score": scores[i]})
-	f = open(os.path.join(path, OUT_FNAME), "w")
-	json.dump({"answers": answers}, f, indent=2)
-	f.close()
+
+def storeJson(texts, cands, path, scores=None):
+    answers = []
+    if scores == None:
+        scores = [1 for text in texts]
+    for i in range(len(texts)):
+        answers.append(
+            {"unknown_text": texts[i], "author": cands[i], "score": scores[i]})
+    f = open(os.path.join(path, OUT_FNAME), "w")
+    json.dump({"answers": answers}, f, indent=2)
+    f.close()
+
 
 def loadGroundTruth():
-	tfile = open(os.path.join(corpusdir, GT_FNAME), "r")
-	tjson = json.load(tfile)
-	tfile.close()
+    tfile = open(os.path.join(corpusdir, GT_FNAME), "r")
+    tjson = json.load(tfile)
+    tfile.close()
 
-	global trueauthors
-	for i in range(len(tjson["ground-truth"])):
-		trueAuthors.append(tjson["ground-truth"][i]["true-author"])
-		
+    global trueauthors
+    for i in range(len(tjson["ground-truth"])):
+        trueAuthors.append(tjson["ground-truth"][i]["true-author"])
+
 
 encoding = ""
 language = ""
