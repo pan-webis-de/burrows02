@@ -405,7 +405,7 @@ def tira(corpusdir, outputdir):
 
     texts = [text for (text, candidate) in results]
     cands = [candidate for (text, candidate) in results]
-    jsonhandler.storeJson(texts, cands, path=outputdir)
+    jsonhandler.storeJson(path=outputdir, texts, cands)
 
 
 def main():
