@@ -302,17 +302,14 @@ class Text:
         """
         logging.info("Calculating the zscores of '%s'", self.name)
 
-        # Here we have a problem if there's a word in the
-        # database whose standard deviation is 0. But this
-        # should only happen if there is only one text in
-        # the database or the word has the same frequency
-        # in every text. For the moment, this shouldn't be
-        # a problem.
-
         for word in database.counter:
             if word in self.counter:
-                self.zscores[word] = (self.scores[word]
-                                      - database.mean[word]) / database.stdev[word]
+                if database.stdev[word] != 0:
+                    self.zscores[word] = (self.scores[word] - database.mean[word]) \
+                        / database.stdev[word]
+                else:
+                    self.zscores[word] = 0
+
 
     def calc_delta(self, database, author):
         """
@@ -405,7 +402,7 @@ def tira(corpusdir, outputdir):
 
     texts = [text for (text, candidate) in results]
     cands = [candidate for (text, candidate) in results]
-    jsonhandler.storeJson(path=outputdir, texts, cands)
+    jsonhandler.storeJson(outputdir, texts, cands)
 
 
 def main():
